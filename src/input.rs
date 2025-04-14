@@ -56,7 +56,7 @@ pub fn send_message(
     Ok(())
 }
 
-pub fn user_input() -> Result<String, Box<dyn Error>> {
+pub fn user_input(title: &String) -> Result<String, Box<dyn Error>> {
     let mut stdout = stdout();
     let mut input = String::new();
 
@@ -68,7 +68,7 @@ pub fn user_input() -> Result<String, Box<dyn Error>> {
     let y = (rows as f32 * 0.8).round() as u16;
 
     loop {
-        draw_box(90, x, y, &input, "file name?".to_string(), &mut stdout)?;
+        draw_box(90, x, y, &input, title.clone(), &mut stdout)?;
 
         if let Event::Key(event) = event::read()? {
             match event.code {

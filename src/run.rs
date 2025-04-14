@@ -1,24 +1,24 @@
 use crate::buffer::{TextBuffer, draw_ui};
 use crate::cursors::Cursor;
+use crate::file::save_to_file;
 
 use std::error::Error;
 use std::time::Duration;
 
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyModifiers};
 
-pub fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let mut buffer = TextBuffer::new();
+pub fn run(buffer: &mut TextBuffer) -> Result<(), Box<dyn std::error::Error>> {
     let mut cursors: Vec<Cursor> = vec![Cursor { x: 0, y: 0 }];
     let mut end = false;
 
     loop {
-        draw_ui(&buffer, &cursors)?;
+        draw_ui(buffer, &cursors)?;
         if end {
             return Ok(());
         }
         if event::poll(Duration::from_millis(500))? {
             if let Ok(Event::Key(key_event)) = event::read() {
-                handle_key(key_event, &mut buffer, &mut cursors, &mut end)?;
+                handle_key(key_event, buffer, &mut cursors, &mut end)?;
                 if end {
                     break;
                 }
@@ -34,7 +34,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     ) -> Result<(), Box<dyn Error>> {
         match key_event.code {
             KeyCode::Char('s') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
-                buffer.save_to_file("hello.txt")?;
+                save_to_file(buffer)?;
                 Ok(())
             }
 

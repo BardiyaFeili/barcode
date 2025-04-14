@@ -1,6 +1,5 @@
 use std::{
     error::Error,
-    fs::File,
     io::{Write, stdout},
 };
 
@@ -35,12 +34,14 @@ pub fn draw_ui(buffer: &TextBuffer, cursors: &[Cursor]) -> Result<(), Box<dyn Er
 #[derive(Debug)]
 pub struct TextBuffer {
     pub lines: Vec<String>,
+    pub path: String,
 }
 
 impl TextBuffer {
     pub fn new() -> Self {
         Self {
             lines: vec![String::new()],
+            path: String::new(),
         }
     }
 
@@ -79,13 +80,5 @@ impl TextBuffer {
         self.lines.insert(cursor.y + 1, new_line);
         cursor.x = 0;
         cursor.y += 1;
-    }
-
-    pub fn save_to_file(&self, path: &str) -> std::io::Result<()> {
-        let mut file = File::create(path)?;
-        for line in &self.lines {
-            writeln!(file, "{}", line)?;
-        }
-        Ok(())
     }
 }

@@ -50,33 +50,37 @@ impl TextBuffer {
         let mut rendered_lines = vec![];
 
         for (y, line) in self.lines.iter().enumerate() {
-            let mut line_with_cursors = line.clone();
+            let mut chars: Vec<String> = line.chars().map(|c| c.to_string()).collect();
 
-            // Check if we have any cursors on this line
-            for (index, cursor) in cursors.iter().enumerate() {
-                if cursor.y == y {
-                    let (before_cursor, after_cursor) = line.split_at(cursor.x);
+            // Collect cursors on this line
+            let mut cursors_on_line: Vec<_> = cursors
+                .iter()
+                .enumerate()
+                .filter(|(_, c)| c.y == y)
+                .collect();
 
-                    let cursor_color = if index == 0 {
-                        self.colored_cursor(Color::Grey)
-                    } else {
-                        self.colored_cursor(Color::Blue)
-                    };
+            // Sort by x to insert from left to right
+            cursors_on_line.sort_by_key(|(_, c)| c.x);
 
-                    line_with_cursors =
-                        format!("{}{}{}", before_cursor, cursor_color, after_cursor);
+            for (offset, (i, cursor)) in cursors_on_line.into_iter().enumerate() {
+                let insert_at = cursor.x + offset;
+                let color = if i == 0 { Color::Grey } else { Color::Blue };
+                let cursor_str = format!("{}|{}", SetForegroundColor(color), ResetColor);
+
+                if insert_at <= chars.len() {
+                    chars.insert(insert_at, cursor_str);
+                } else {
+                    while chars.len() < insert_at {
+                        chars.push(" ".to_string());
+                    }
+                    chars.push(cursor_str);
                 }
             }
 
-            rendered_lines.push(line_with_cursors);
+            rendered_lines.push(chars.concat());
         }
 
         rendered_lines
-    }
-
-    fn colored_cursor(&self, color: Color) -> String {
-        // Return the cursor character with the specified color
-        format!("{}|{}", SetForegroundColor(color), ResetColor)
     }
 
     pub fn insert_newline(&mut self, cursor: &mut Cursor) {

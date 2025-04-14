@@ -37,6 +37,17 @@ pub fn run(buffer: &mut TextBuffer) -> Result<(), Box<dyn std::error::Error>> {
                 save_to_file(buffer)?;
                 Ok(())
             }
+            KeyCode::Char('a') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                cursors.push(Cursor {
+                    x: cursors[0].x,
+                    y: cursors[0].y,
+                });
+                Ok(())
+            }
+            KeyCode::Char('x') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                cursors.truncate(1);
+                Ok(())
+            }
 
             KeyCode::Char(char) if char.is_ascii_graphic() || char == ' ' => {
                 for cursor in cursors {

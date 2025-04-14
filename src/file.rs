@@ -36,26 +36,26 @@ pub fn save_to_file(buffer: &mut TextBuffer) -> Result<(), Box<dyn Error>> {
             )?;
             return Ok(());
         }
-        buffer.path = file_name;
-    }
 
-    let path = Path::new(&buffer.path);
-
-    // Ensure parent directory exists
-    if let Some(parent) = path.parent() {
-        if !parent.exists() {
-            match user_input("Parent folder doesn't exist, Create? (y,N)".to_string())?.as_str() {
-                "y" | "Y" => fs::create_dir_all(parent)?,
-                _ => {
-                    send_message(
-                        "The parent directory did not exist".to_string(),
-                        3,
-                        MessageType::Error,
-                    )?;
-                    return Ok(());
+        // Ensure parent directory exists
+        let path = Path::new(&file_name);
+        if let Some(parent) = path.parent() {
+            if !parent.exists() {
+                match user_input("Parent folder doesn't exist, Create? (y,N)".to_string())?.as_str()
+                {
+                    "y" | "Y" => fs::create_dir_all(parent)?,
+                    _ => {
+                        send_message(
+                            "The parent directory did not exist".to_string(),
+                            3,
+                            MessageType::Error,
+                        )?;
+                        return Ok(());
+                    }
                 }
             }
         }
+        buffer.path = file_name;
     }
 
     let mut file = File::create(&buffer.path)?;

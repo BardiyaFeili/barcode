@@ -6,10 +6,10 @@ use std::{
 };
 
 use crossterm::{
-    cursor,
+    ExecutableCommand, cursor,
     event::{self, Event, KeyCode},
     execute,
-    style::Print,
+    style::{Color, Print, ResetColor, SetForegroundColor},
     terminal::{Clear, ClearType, size},
 };
 
@@ -25,6 +25,12 @@ impl MessageType {
             Self::Error => "Error".to_string(),
         }
     }
+    fn color(&self) -> Color {
+        match self {
+            Self::Success => Color::Cyan,
+            Self::Error => Color::Red,
+        }
+    }
 }
 
 pub fn send_message(
@@ -33,6 +39,7 @@ pub fn send_message(
     msg_type: MessageType,
 ) -> Result<(), Box<dyn Error>> {
     let mut stdout = stdout();
+    stdout.execute(SetForegroundColor(msg_type.color()))?;
 
     let duration = Duration::from_secs(seconds);
     let start = Instant::now();
@@ -53,11 +60,13 @@ pub fn send_message(
             &mut stdout,
         )?;
     }
+    stdout.execute(ResetColor)?;
     Ok(())
 }
 
 pub fn user_input(title: String) -> Result<String, Box<dyn Error>> {
     let mut stdout = stdout();
+    stdout.execute(SetForegroundColor(Color::Cyan))?;
     let mut input = String::new();
 
     let (cols, rows) = size().unwrap();
@@ -89,6 +98,7 @@ pub fn user_input(title: String) -> Result<String, Box<dyn Error>> {
             }
         }
     }
+    stdout.execute(ResetColor)?;
 
     Ok(input.trim().to_string())
 }

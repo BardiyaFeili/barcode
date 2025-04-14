@@ -5,6 +5,7 @@ use std::{
 
 use crossterm::{
     cursor, execute,
+    style::{Color, ResetColor, SetForegroundColor},
     terminal::{Clear, ClearType},
 };
 
@@ -20,7 +21,7 @@ pub fn draw_ui(buffer: &TextBuffer, cursors: &[Cursor]) -> Result<(), Box<dyn Er
         Clear(ClearType::All)
     )?;
 
-    let buffer_content = buffer.render(&cursors[0]);
+    let buffer_content = buffer.render(cursors);
 
     for (n, line) in buffer_content.iter().enumerate() {
         execute!(stdout, cursor::MoveTo(0, n as u16))?;
@@ -45,26 +46,37 @@ impl TextBuffer {
         }
     }
 
-    fn render(&self, cursor: &Cursor) -> Vec<String> {
+    fn render(&self, cursors: &[Cursor]) -> Vec<String> {
         let mut rendered_lines = vec![];
 
         for (y, line) in self.lines.iter().enumerate() {
-            if y == cursor.y {
-                let mut line_with_cursor = line.clone();
-                if cursor.x <= line.len() {
-                    line_with_cursor.insert(cursor.x, '|');
-                } else {
-                    // Cursor is past the end, pad with spaces
-                    line_with_cursor.push_str(&" ".repeat(cursor.x - line.len()));
-                    line_with_cursor.push('|');
+            let mut line_with_cursors = line.clone();
+
+            // Check if we have any cursors on this line
+            for (index, cursor) in cursors.iter().enumerate() {
+                if cursor.y == y {
+                    let (before_cursor, after_cursor) = line.split_at(cursor.x);
+
+                    let cursor_color = if index == 0 {
+                        self.colored_cursor(Color::Grey)
+                    } else {
+                        self.colored_cursor(Color::Blue)
+                    };
+
+                    line_with_cursors =
+                        format!("{}{}{}", before_cursor, cursor_color, after_cursor);
                 }
-                rendered_lines.push(line_with_cursor);
-            } else {
-                rendered_lines.push(line.clone());
             }
+
+            rendered_lines.push(line_with_cursors);
         }
 
         rendered_lines
+    }
+
+    fn colored_cursor(&self, color: Color) -> String {
+        // Return the cursor character with the specified color
+        format!("{}|{}", SetForegroundColor(color), ResetColor)
     }
 
     pub fn insert_newline(&mut self, cursor: &mut Cursor) {

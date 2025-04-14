@@ -49,14 +49,14 @@ pub fn send_message(
             x,
             y,
             &message,
-            msg_type.title().to_string(),
+            &msg_type.title().to_string(),
             &mut stdout,
         )?;
     }
     Ok(())
 }
 
-pub fn user_input(title: &String) -> Result<String, Box<dyn Error>> {
+pub fn user_input(title: String) -> Result<String, Box<dyn Error>> {
     let mut stdout = stdout();
     let mut input = String::new();
 
@@ -68,7 +68,7 @@ pub fn user_input(title: &String) -> Result<String, Box<dyn Error>> {
     let y = (rows as f32 * 0.8).round() as u16;
 
     loop {
-        draw_box(90, x, y, &input, title.clone(), &mut stdout)?;
+        draw_box(90, x, y, &input, &title, &mut stdout)?;
 
         if let Event::Key(event) = event::read()? {
             match event.code {
@@ -78,6 +78,11 @@ pub fn user_input(title: &String) -> Result<String, Box<dyn Error>> {
                     input.pop();
                 }
                 KeyCode::Esc => {
+                    send_message(
+                        "User input was cancelled".to_string(),
+                        3,
+                        MessageType::Error,
+                    )?;
                     return Err("User canceled input".into());
                 }
                 _ => {}
@@ -93,7 +98,7 @@ fn draw_box(
     x: u16,
     y: u16,
     input: &String,
-    title: String,
+    title: &String,
     stdout: &mut Stdout,
 ) -> Result<(), Box<dyn Error>> {
     let prompt_top = format!("╭{:─^width$}╮", format!(" {} ", title), width = width - 2);

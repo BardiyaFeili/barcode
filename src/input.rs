@@ -72,12 +72,12 @@ pub fn user_input(title: String) -> Result<String, Box<dyn Error>> {
     let (cols, rows) = size().unwrap();
 
     // Calculate position: center horizontally, 80% vertically
-    let width: u16 = 90;
+    let width: u16 = 70;
     let x = cols / 2 - width / 2;
     let y = (rows as f32 * 0.8).round() as u16;
 
     loop {
-        draw_box(90, x, y, &input, &title, &mut stdout)?;
+        draw_box(width as usize, x, y, &input, &title, &mut stdout)?;
 
         if let Event::Key(event) = event::read()? {
             match event.code {

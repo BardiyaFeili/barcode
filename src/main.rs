@@ -16,6 +16,7 @@ mod cursors;
 mod file;
 mod input;
 mod run;
+mod ui;
 
 #[derive(Parser)]
 #[command(name = "Barcode")]

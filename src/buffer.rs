@@ -9,22 +9,25 @@ use crossterm::{
     terminal::{Clear, ClearType},
 };
 
-use crate::cursors::Cursor;
+use crate::{cursors::Cursor, ui::render_number};
 
 pub fn draw_ui(buffer: &TextBuffer, cursors: &[Cursor]) -> Result<(), Box<dyn Error>> {
     let mut stdout = stdout();
+    let buffer_content = buffer.render(cursors);
+
+    let min_x = 15;
 
     execute!(
         stdout,
         cursor::Hide,
-        cursor::MoveTo(0, 0),
+        cursor::MoveTo(min_x, 0),
         Clear(ClearType::All)
     )?;
 
-    let buffer_content = buffer.render(cursors);
+    render_number(&mut stdout, &buffer_content)?;
 
     for (n, line) in buffer_content.iter().enumerate() {
-        execute!(stdout, cursor::MoveTo(0, n as u16))?;
+        execute!(stdout, cursor::MoveTo(min_x, n as u16))?;
         writeln!(stdout, "{}", line)?;
     }
 
@@ -64,8 +67,8 @@ impl TextBuffer {
 
             for (offset, (i, cursor)) in cursors_on_line.into_iter().enumerate() {
                 let insert_at = cursor.x + offset;
-                let color = if i == 0 { Color::Grey } else { Color::Blue };
-                let cursor_str = format!("{}|{}", SetForegroundColor(color), ResetColor);
+                let color = if i == 0 { Color::DarkGrey } else { Color::Blue };
+                let cursor_str = format!("{}│{}", SetForegroundColor(color), ResetColor);
 
                 if insert_at <= chars.len() {
                     chars.insert(insert_at, cursor_str);

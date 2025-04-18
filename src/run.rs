@@ -1,6 +1,6 @@
 use crate::buffer::{TextBuffer, draw_ui};
 use crate::cursors::Cursor;
-use crate::file::{save_as, save_to_file};
+use crate::file::save_to_file;
 
 use std::error::Error;
 use std::time::Duration;
@@ -33,13 +33,6 @@ pub fn run(buffer: &mut TextBuffer) -> Result<(), Box<dyn std::error::Error>> {
         end: &mut bool,
     ) -> Result<(), Box<dyn Error>> {
         match key_event.code {
-            KeyCode::Char('S')
-                if key_event.modifiers.contains(KeyModifiers::CONTROL)
-                    && key_event.modifiers.contains(KeyModifiers::SHIFT) =>
-            {
-                save_as(buffer)?;
-                Ok(())
-            }
             KeyCode::Char('s') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
                 save_to_file(buffer)?;
                 Ok(())

@@ -26,7 +26,6 @@ pub fn read_file(file: String) -> Result<TextBuffer, Box<dyn Error>> {
 }
 
 pub fn save_to_file(buffer: &mut TextBuffer) -> Result<(), Box<dyn Error>> {
-    println!("save file called");
     if buffer.path.is_empty() {
         buffer.path = ask_for_file_name()?;
     }
@@ -43,18 +42,7 @@ pub fn save_to_file(buffer: &mut TextBuffer) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn save_as(buffer: &mut TextBuffer) -> Result<(), Box<dyn Error>> {
-    println!("Save as called");
-    let new_name = ask_for_file_name()?;
-
-    buffer.path = new_name;
-    save_to_file(buffer)?;
-
-    Ok(())
-}
-
 fn ask_for_file_name() -> Result<String, Box<dyn Error>> {
-    println!("Asked for file name");
     let file_name = user_input("file name?".to_string())?;
     if file_name.is_empty() {
         send_message(

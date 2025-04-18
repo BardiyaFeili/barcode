@@ -5,22 +5,38 @@ use std::{
 
 use crossterm::{
     ExecutableCommand, cursor, execute,
-    style::{ResetColor, SetForegroundColor},
+    style::{Attribute, Color, ResetColor, SetAttribute, SetForegroundColor},
 };
 
-pub fn render_number(stdout: &mut Stdout, content: &[String]) -> Result<(), Box<dyn Error>> {
-    execute!(stdout, cursor::MoveTo(0, 0),)?;
+pub fn render_number(
+    stdout: &mut Stdout,
+    content: &[String],
+    cursor_y: usize,
+) -> Result<(), Box<dyn Error>> {
+    execute!(stdout, cursor::MoveTo(0, 0))?;
 
-    stdout.execute(SetForegroundColor(crossterm::style::Color::Grey))?;
+    for n in 1..=content.len() {
+        let line_index = n - 1;
+        let number_str = format!("{}{}", " ".repeat(6 - n.to_string().len()), n);
 
-    for n in 1..content.len() + 1 {
-        let number_row = format!("{}{}   │   ", " ".repeat(7 - n.to_string().len()), n);
+        execute!(stdout, cursor::MoveTo(0, line_index as u16))?;
 
-        execute!(stdout, cursor::MoveTo(0, (n - 1) as u16))?;
-        writeln!(stdout, "{number_row}")?;
+        if line_index == cursor_y {
+            stdout.execute(SetForegroundColor(Color::DarkYellow))?;
+            stdout.execute(SetAttribute(Attribute::Bold))?;
+            write!(stdout, "{number_str}")?;
+            stdout.execute(ResetColor)?;
+        } else {
+            stdout.execute(SetForegroundColor(Color::Grey))?;
+            write!(stdout, "{number_str}")?;
+            stdout.execute(ResetColor)?;
+        }
+
+        // Write the bar in grey
+        stdout.execute(SetForegroundColor(Color::Grey))?;
+        writeln!(stdout, "   │  ")?;
+        stdout.execute(ResetColor)?;
     }
-
-    stdout.execute(ResetColor)?;
 
     Ok(())
 }

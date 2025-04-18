@@ -15,7 +15,7 @@ pub fn draw_ui(buffer: &TextBuffer, cursors: &[Cursor]) -> Result<(), Box<dyn Er
     let mut stdout = stdout();
     let buffer_content = buffer.render(cursors);
 
-    let min_x = 15;
+    let min_x = 13;
 
     execute!(
         stdout,
@@ -24,7 +24,7 @@ pub fn draw_ui(buffer: &TextBuffer, cursors: &[Cursor]) -> Result<(), Box<dyn Er
         Clear(ClearType::All)
     )?;
 
-    render_number(&mut stdout, &buffer_content)?;
+    render_number(&mut stdout, &buffer_content, cursors[0].y)?;
 
     for (n, line) in buffer_content.iter().enumerate() {
         execute!(stdout, cursor::MoveTo(min_x, n as u16))?;

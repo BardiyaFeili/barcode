@@ -1,44 +1,12 @@
-use std::{
-    error::Error,
-    io::{Write, stdout},
-};
+use crossterm::style::{Color, ResetColor, SetForegroundColor};
 
-use crossterm::{
-    cursor, execute,
-    style::{Color, ResetColor, SetForegroundColor},
-    terminal::{Clear, ClearType},
-};
-
-use crate::{cursors::Cursor, ui::render_number};
-
-pub fn draw_ui(buffer: &TextBuffer, cursors: &[Cursor]) -> Result<(), Box<dyn Error>> {
-    let mut stdout = stdout();
-    let buffer_content = buffer.render(cursors);
-
-    let min_x = 13;
-
-    execute!(
-        stdout,
-        cursor::Hide,
-        cursor::MoveTo(min_x, 0),
-        Clear(ClearType::All)
-    )?;
-
-    render_number(&mut stdout, &buffer_content, cursors[0].y)?;
-
-    for (n, line) in buffer_content.iter().enumerate() {
-        execute!(stdout, cursor::MoveTo(min_x, n as u16))?;
-        writeln!(stdout, "{}", line)?;
-    }
-
-    stdout.flush()?;
-    Ok(())
-}
+use crate::cursors::Cursor;
 
 #[derive(Debug)]
 pub struct TextBuffer {
     pub lines: Vec<String>,
     pub path: String,
+    pub view_start: usize,
 }
 
 impl TextBuffer {
@@ -46,10 +14,11 @@ impl TextBuffer {
         Self {
             lines: vec![String::new()],
             path: String::new(),
+            view_start: 1,
         }
     }
 
-    fn render(&self, cursors: &[Cursor]) -> Vec<String> {
+    pub fn render(&self, cursors: &[Cursor]) -> Vec<String> {
         let mut rendered_lines = vec![];
 
         for (y, line) in self.lines.iter().enumerate() {
@@ -99,5 +68,13 @@ impl TextBuffer {
         self.lines.insert(cursor.y + 1, new_line);
         cursor.x = 0;
         cursor.y += 1;
+    }
+
+    pub fn view_go_down(&mut self) {
+        self.view_start += 1;
+    }
+
+    pub fn view_go_up(&mut self) {
+        self.view_start -= 1;
     }
 }

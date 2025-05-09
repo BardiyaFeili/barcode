@@ -22,6 +22,7 @@ pub fn read_file(file: String) -> Result<TextBuffer, Box<dyn Error>> {
     Ok(TextBuffer {
         lines: content.lines().map(|line| line.to_string()).collect(),
         path: file,
+        view_start: 1,
     })
 }
 

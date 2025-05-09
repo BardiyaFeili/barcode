@@ -118,7 +118,7 @@ fn draw_box(
     execute!(
         stdout,
         cursor::MoveTo(x, y),
-        Clear(ClearType::FromCursorDown),
+        Clear(ClearType::CurrentLine),
         Print(prompt_top),
         cursor::MoveTo(x, y + 1),
         Print(prompt_mid),

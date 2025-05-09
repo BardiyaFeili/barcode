@@ -1,6 +1,7 @@
-use crate::buffer::{TextBuffer, draw_ui};
+use crate::buffer::TextBuffer;
 use crate::cursors::Cursor;
 use crate::file::save_to_file;
+use crate::ui::draw_ui;
 
 use std::error::Error;
 use std::time::Duration;
